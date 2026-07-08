@@ -1,8 +1,12 @@
-package likelion14th.lte.user.domain;
+package likelion14th.lte.user.entity;
 
 import jakarta.persistence.*;
 import likelion14th.lte.Entity.BaseEntity;
+import likelion14th.lte.follow.entity.Follow;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -39,6 +43,12 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String s3ImageKey;
 
+    @OneToMany(mappedBy = "toUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followers;
+
+    @OneToMany(mappedBy = "fromUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followings;
+
     @Builder(access = AccessLevel.PUBLIC)
     // 11. 객체를 생성할 때 생성자 대신 쓸 수 있는 '빌더 패턴'을 만들어줍니다.
     // (어떤 변수에 무슨 값을 넣는지 명확히 알 수 있어 실수를 줄여줍니다.)
@@ -46,6 +56,8 @@ public class User extends BaseEntity {
         this.username = username;
         this.userTag = userTag;
         this.introduction = introduction;
+        this.followers = new ArrayList<>();
+        this.followings = new ArrayList<>();
     }
 
     // 12. [핵심] Setter를 쓰지 않고 명확한 행동(메서드)으로 객체의 상태를 바꿉니다.

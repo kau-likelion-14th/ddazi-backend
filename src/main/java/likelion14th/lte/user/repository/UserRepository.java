@@ -1,7 +1,11 @@
 package likelion14th.lte.user.repository;
 
-import likelion14th.lte.user.domain.User;
+import likelion14th.lte.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -13,4 +17,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 3. ID로 유저를 찾는 메서드입니다.
     // 4. Optional: "유저를 찾았는데 없을 수도 있어! (null 방지용 상자)"라는 자바 문법입니다.
     // * 사실 findById는 JpaRepository가 기본으로 제공해서 안 적어도 작동합니다.
+    Page<User> findByUsernameContainingIgnoreCase(String nickname, Pageable pageable);
+    Optional<User> findByUserTag(String usertag);
+
+    @Query("SELECT u FROM User u " +
+            "WHERE u.id != :userId " +
+            "AND NOT EXISTS (SELECT f FROM Follow f WHERE f.fromUser.id = :userId AND f.toUser.id = u.id)")
+    Page<User> findCanFollowUsers(@Param("userId") Long userId, Pageable pageable);
 }

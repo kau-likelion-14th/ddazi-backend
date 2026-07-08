@@ -1,6 +1,6 @@
 package likelion14th.lte.user.dto.response;
 
-import likelion14th.lte.user.domain.User;
+import likelion14th.lte.user.entity.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

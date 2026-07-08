@@ -2,7 +2,7 @@ package likelion14th.lte.user.service;
 
 import likelion14th.lte.global.api.ErrorCode;
 import likelion14th.lte.global.exception.GeneralException;
-import likelion14th.lte.user.domain.User;
+import likelion14th.lte.user.entity.User;
 import likelion14th.lte.user.dto.request.CreateTestUserRequest;
 import likelion14th.lte.user.dto.response.UserProfileResponse;
 import likelion14th.lte.user.repository.UserRepository;
