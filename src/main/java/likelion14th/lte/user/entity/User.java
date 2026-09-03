@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import likelion14th.lte.Entity.BaseEntity;
 import likelion14th.lte.follow.entity.Follow;
 import likelion14th.lte.statistic.entity.Statistic;
+import likelion14th.lte.youtube.domain.SavedSong;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -50,6 +51,9 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "fromUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followings;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SavedSong> savedSongs;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "statistic_id", nullable = false)
     private Statistic statistic;
@@ -64,6 +68,7 @@ public class User extends BaseEntity {
         this.followers = new ArrayList<>();
         this.followings = new ArrayList<>();
         this.statistic = Statistic.create();
+        this.savedSongs = new ArrayList<>();
     }
 
     // 12. [핵심] Setter를 쓰지 않고 명확한 행동(메서드)으로 객체의 상태를 바꿉니다.
