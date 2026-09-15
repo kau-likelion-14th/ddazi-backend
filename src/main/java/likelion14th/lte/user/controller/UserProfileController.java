@@ -9,6 +9,8 @@ import likelion14th.lte.user.service.UserProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,10 +31,11 @@ public class UserProfileController {
     @Operation(summary = "유저 프로필을 조회합니다", description = "유저프로필 조회")
     // 7. Swagger(API 명세서 자동 완성 도구)에 설명을 띄우기 위한 장식입니다. 기능엔 영향이 없습니다.
     public ApiResponse<UserProfileResponse> getUserProfile(
-            @RequestParam Long userId
+            @AuthenticationPrincipal Jwt jwt
             // 8. 주소 뒤에 붙은 파라미터(?userId=1)에서 숫자 1을 빼와서 변수에 담습니다.
     ) {
         // 9. 서비스에게 "이 ID 가진 유저 프로필 좀 가져와!" 라고 일을 시킵니다. (이 안에서 DTO 변환까지 다 끝나서 돌아옵니다.)
+        Long userId = Long.valueOf(jwt.getSubject());
         UserProfileResponse response = userProfileService.getUserProfile(userId);
 
         // 10. 찾아온 결과를 ApiResponse라는 공통 규격 상자에 한 번 더 예쁘게 포장해서(성공 코드와 함께) 클라이언트에게 던져줍니다.

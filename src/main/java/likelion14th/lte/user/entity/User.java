@@ -3,6 +3,7 @@ package likelion14th.lte.user.entity;
 import jakarta.persistence.*;
 import likelion14th.lte.Entity.BaseEntity;
 import likelion14th.lte.follow.entity.Follow;
+import likelion14th.lte.login.domain.RefreshToken;
 import likelion14th.lte.statistic.entity.Statistic;
 import likelion14th.lte.youtube.domain.SavedSong;
 import lombok.*;
@@ -45,6 +46,9 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String s3ImageKey;
 
+    @Column(unique = true)
+    private String providerId;
+
     @OneToMany(mappedBy = "toUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followers;
 
@@ -58,10 +62,14 @@ public class User extends BaseEntity {
     @JoinColumn(name = "statistic_id", nullable = false)
     private Statistic statistic;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private RefreshToken refreshToken;
+
     @Builder(access = AccessLevel.PUBLIC)
     // 11. 객체를 생성할 때 생성자 대신 쓸 수 있는 '빌더 패턴'을 만들어줍니다.
     // (어떤 변수에 무슨 값을 넣는지 명확히 알 수 있어 실수를 줄여줍니다.)
-    private User(String username, String introduction, String userTag) {
+    private User(String providerId, String username, String introduction, String userTag) {
+        this.providerId = providerId;
         this.username = username;
         this.userTag = userTag;
         this.introduction = introduction;
