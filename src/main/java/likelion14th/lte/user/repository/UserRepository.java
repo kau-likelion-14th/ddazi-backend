@@ -19,6 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // * 사실 findById는 JpaRepository가 기본으로 제공해서 안 적어도 작동합니다.
     Page<User> findByUsernameContainingIgnoreCase(String nickname, Pageable pageable);
     Optional<User> findByUserTag(String usertag);
+    Optional<User> findByProviderId(String providerId);
+    boolean existsByUserTag(String userTag);
 
     @Query("SELECT u FROM User u " +
             "WHERE u.id != :userId " +
