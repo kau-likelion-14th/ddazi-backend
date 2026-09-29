@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 // 1. 모든 필드를 매개변수로 받는 생성자를 자동으로 만들어줍니다.
 public class UserProfileResponse {
-    private String userName;
+    private String username;
     private String profileImageUrl;
     private String introduction;
 

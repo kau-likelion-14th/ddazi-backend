@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
-
 @Service
 // 1. "나는 핵심 비즈니스 로직을 처리하는 서비스 계층이다!"라고 스프링에게 알립니다.
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -107,6 +105,31 @@ public class UserProfileService {
         } catch (UtilException e) {
             throw GeneralException.of(mapToErrorCode(e.getReason()));
         }
+    }
+
+    @Transactional
+    public UserProfileResponse deleteProfileImage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+        try {
+            if (user.getS3ImageKey() != null && !user.getS3ImageKey().isBlank()) {
+                s3Utils.deleteFile(user.getS3ImageKey());
+            }
+            user.deleteProfileImage();
+            return UserProfileResponse.from(user);
+        } catch (UtilException e) {
+            throw GeneralException.of(mapToErrorCode(e.getReason()));
+        }
+    }
+
+    @Transactional
+    public UserProfileResponse updateIntroduction(Long userId, String introduction) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateIntroduction(introduction);
+        return UserProfileResponse.from(user);
     }
 
     private ErrorCode mapToErrorCode(UtilException.Reason reason) {
