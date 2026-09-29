@@ -68,15 +68,22 @@ public class User extends BaseEntity {
     @Builder(access = AccessLevel.PUBLIC)
     // 11. 객체를 생성할 때 생성자 대신 쓸 수 있는 '빌더 패턴'을 만들어줍니다.
     // (어떤 변수에 무슨 값을 넣는지 명확히 알 수 있어 실수를 줄여줍니다.)
-    private User(String providerId, String username, String introduction, String userTag) {
+    private User(String providerId, String username, String introduction, String userTag, String s3ImageKey, String profileImage) {
         this.providerId = providerId;
         this.username = username;
         this.userTag = userTag;
         this.introduction = introduction;
+        this.s3ImageKey = s3ImageKey;
+        this.profileImage = profileImage;
         this.followers = new ArrayList<>();
         this.followings = new ArrayList<>();
         this.statistic = Statistic.create();
         this.savedSongs = new ArrayList<>();
+    }
+
+    public void fixUserProfile(String s3ImageUrl, String s3ImageKey) {
+        this.s3ImageKey = s3ImageKey;
+        this.profileImage = s3ImageUrl;
     }
 
     // 12. [핵심] Setter를 쓰지 않고 명확한 행동(메서드)으로 객체의 상태를 바꿉니다.

@@ -6,10 +6,17 @@ import likelion14th.lte.user.entity.User;
 import likelion14th.lte.user.dto.request.CreateTestUserRequest;
 import likelion14th.lte.user.dto.response.UserProfileResponse;
 import likelion14th.lte.user.repository.UserRepository;
+import likelion14th.lte.utils.Image.ImageUtil;
+import likelion14th.lte.utils.S3.S3Dto;
+import likelion14th.lte.utils.S3.S3Utils;
+import likelion14th.lte.utils.exception.UtilException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.awt.*;
 
 @Service
 // 1. "나는 핵심 비즈니스 로직을 처리하는 서비스 계층이다!"라고 스프링에게 알립니다.
@@ -18,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserProfileService {
 
     private final UserRepository userRepository;
+    private final S3Utils s3Utils;
+    private final ImageUtil imageUtil;
     // 3. Service는 DB에 접근해야 하므로 Repository를 부릅니다. 스프링이 알아서 객체를 조립(주입)해 줍니다.
 
     // ==========================================
@@ -69,5 +78,47 @@ public class UserProfileService {
 
         // 14. 방금 DB에 무사히 저장된 회원 데이터(Entity)를 다시 화면용 DTO로 변환하여 Controller로 돌려보냅니다.
         return UserProfileResponse.from(savedUser);
+    }
+
+    @Transactional
+    public UserProfileResponse putProfileImage(Long userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+        try {
+            imageUtil.validateImage(file);
+            ImageUtil.ResizedImage resizedImage =
+                    imageUtil.resizeProfileToPngBytes(file, 256);
+
+            String originalFilename = file.getOriginalFilename();
+            String baseName = originalFilename.contains(".")
+                    ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                    : originalFilename;
+
+            S3Dto result =
+                    s3Utils.uploadBytes(resizedImage.bytes(), baseName + ".png", resizedImage.contentType());
+
+            if (user.getS3ImageKey() != null) {
+                s3Utils.deleteFile(user.getS3ImageKey());
+            }
+            user.fixUserProfile(result.getUrl(), result.getKey());
+
+            return UserProfileResponse.from(user);
+        } catch (UtilException e) {
+            throw GeneralException.of(mapToErrorCode(e.getReason()));
+        }
+    }
+
+    private ErrorCode mapToErrorCode(UtilException.Reason reason) {
+        return switch (reason) {
+            case FILE_EMPTY -> ErrorCode.IMAGE_FILE_EMPTY;
+            case FILE_TOO_LARGE -> ErrorCode.IMAGE_TOO_LARGE;
+            case TYPE_NOT_ALLOWED -> ErrorCode.IMAGE_TYPE_NOT_ALLOWED;
+
+            case IMAGE_PROCESS_FAILED -> ErrorCode.IMAGE_PROCESS_FAILED;
+
+            case S3_UPLOAD_FAILED -> ErrorCode.S3_UPLOAD_FAILED;
+            case S3_DELETE_FAILED -> ErrorCode.S3_DELETE_FAILED;
+        };
     }
 }

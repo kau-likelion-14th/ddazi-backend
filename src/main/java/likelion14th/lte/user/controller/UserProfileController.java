@@ -9,9 +9,11 @@ import likelion14th.lte.user.service.UserProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 // 1. "나는 HTML 화면을 반환하는 게 아니라, JSON 데이터만 반환하는 컨트롤러야!"
@@ -54,5 +56,17 @@ public class UserProfileController {
 
         // 14. 성공적으로 생성되었다는 코드(CREATED)와 함께 결과를 반환합니다.
         return ApiResponse.onSuccess(SuccessCode.CREATED, response);
+    }
+
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "유저 프로필 추가 및 수정", description = "유저 프로필 이미지를 추가하거나 수정합니다")
+    public ApiResponse<UserProfileResponse> putUserProfile(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam("image") MultipartFile file
+    ) {
+        Long userId = Long.valueOf(jwt.getSubject());
+
+        UserProfileResponse response = userProfileService.putProfileImage(userId, file);
+        return ApiResponse.onSuccess(SuccessCode.PROFILE_PUT_SUCCESS, response);
     }
 }
