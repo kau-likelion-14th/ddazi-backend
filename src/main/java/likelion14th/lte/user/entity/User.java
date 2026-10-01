@@ -86,6 +86,11 @@ public class User extends BaseEntity {
         this.profileImage = s3ImageUrl;
     }
 
+    public void deleteProfileImage() {
+        this.s3ImageKey = null;
+        this.profileImage = null;
+    }
+
     // 12. [핵심] Setter를 쓰지 않고 명확한 행동(메서드)으로 객체의 상태를 바꿉니다.
     // 이 메서드를 호출해 값을 바꾸면, JPA가 알아서 DB에 UPDATE 쿼리를 날려줍니다! (더티 체킹)
     public void updateIntroduction(String introduction) {
