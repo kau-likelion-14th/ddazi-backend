@@ -56,6 +56,10 @@ cloud:
       path:
         location: user/
 
+logging:
+  level:
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+
 ---
 # local profile
 spring:
@@ -76,6 +80,31 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
 
-logging:
-  level:
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
+---
+# develop profile
+spring:
+  config:
+    activate:
+      on-profile: develop
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  sql:
+    init:
+      mode: never
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        use_sql_comments: true
+        default_batch_fetch_size: 1000
+
+
