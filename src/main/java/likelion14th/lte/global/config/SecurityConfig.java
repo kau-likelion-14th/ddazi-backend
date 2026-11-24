@@ -58,6 +58,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
+                "https://lte-project-ddazi.netlify.app",
                 "http://localhost:8080"
         ));
         configuration.setAllowedMethods(
